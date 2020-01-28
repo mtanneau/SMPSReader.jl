@@ -1,4 +1,4 @@
-module SMPS
+module SMPSReader
 
 greet() = print("Hello World!")
 

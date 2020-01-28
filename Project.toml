@@ -1,4 +1,4 @@
-name = "SMPS"
-uuid = "758d3d0e-86fe-4db4-bb40-3cabbcbfe4e5"
+name = "SMPSReader"
+uuid = "702600ef-4881-4890-820b-5f0d39c8a3e9"
 authors = ["Mathieu Tanneau <mathieu.tanneau@gmail.com>"]
 version = "0.1.0"

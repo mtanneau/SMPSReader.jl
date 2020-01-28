@@ -1,2 +1,2 @@
-# SMPS.jl
+# SMPSReader.jl
 Julia reader for SMPS files
