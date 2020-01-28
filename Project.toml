@@ -1,0 +1,4 @@
+name = "SMPS"
+uuid = "758d3d0e-86fe-4db4-bb40-3cabbcbfe4e5"
+authors = ["Mathieu Tanneau <mathieu.tanneau@gmail.com>"]
+version = "0.1.0"
