@@ -1,0 +1,6 @@
+TIME          TEST1    
+PERIODS       LP
+    COL1      ROW01       PERIOD1
+    COL6      ROW03       PERIOD2
+    COL8      ROW19       PERIOD3
+ENDATA

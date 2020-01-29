@@ -1,13 +1,7 @@
-using SMPSReader
-const SMPS = SMPSReader
-
-DAT_DIR = joinpath(@__DIR__, "../dat")
-
-
 function test_indep_discrete()
     sdat = SMPS.StocData()
 
-    open("test1.sto") do fsto
+    open("dat/test1.sto") do fsto
         read!(fsto, sdat)
     end
 
@@ -31,7 +25,7 @@ end
 function test_blocks_discrete()
     sdat = SMPS.StocData()
 
-    open("test2.sto") do fsto
+    open("dat/test2.sto") do fsto
         read!(fsto, sdat)
     end
 
