@@ -1,0 +1,8 @@
+STOCH         TEST1    
+INDEP         DISCRETE
+    X0001     R000001     6.0          PERIOD2   0.5
+    X0001     R000001     8.0          PERIOD2   0.5
+    X0002     R000002     1.0          PERIOD2   0.1
+    X0002     R000002     2.0          PERIOD2   0.5
+    X0002     R000002     3.0          PERIOD2   0.4
+ENDATA

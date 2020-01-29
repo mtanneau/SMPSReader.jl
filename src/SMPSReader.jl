@@ -1,5 +1,5 @@
 module SMPSReader
 
-greet() = print("Hello World!")
+include("stoch.jl")
 
 end # module
