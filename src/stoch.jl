@@ -158,13 +158,13 @@ function Base.read!(io::IO, dat::StocData)
                     col, row1, val1 = fields[1], fields[2], parse(Float64, fields[3])
 
                     # Add entry
-                    push!(block.blocks[end], (col, row1, val1))
+                    push!(block.blocks[end], (row1, col, val1))
                     
                     if length(fields) >= 5
                         # parse the second entry
                         row2, val2 = fields[4], parse(Float64, fields[5])
                         # Add entry to block
-                        push!(block.blocks[end], (col, row2, val2))
+                        push!(block.blocks[end], (row2, col, val2))
                     end
 
                 end

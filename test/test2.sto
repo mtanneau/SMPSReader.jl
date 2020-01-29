@@ -1,0 +1,21 @@
+STOCH         TEST2    
+BLOCKS        DISCRETE
+ BL BLOCK1    PERIOD2     0.60
+    X0001     C000001     1.1          C000002   1.2
+    X0002     C000001     2.1          C000002   2.2
+    X0003     C000001     3.1          C000002   3.2
+ BL BLOCK1    PERIOD2     0.40
+    X0001     C000001     11.1         C000002   11.2
+    X0002     C000001     12.1         C000002   12.2
+ BL BLOCK2    PERIOD2     0.25
+    RIGHT     C000001     1.0          C000002   2.0
+    RIGHT     C000003     3.0          C000004   4.0
+ BL BLOCK2    PERIOD2     0.35
+    RIGHT     C000001     1.1
+    RIGHT     C000002     2.1
+    RIGHT     C000003     3.1
+ BL BLOCK2    PERIOD2     0.40
+    RIGHT     C000001     1.2
+    RIGHT     C000002     2.2
+    RIGHT     C000003     3.2
+ENDATA
