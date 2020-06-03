@@ -1,3 +1,13 @@
+"""
+    TimeData
+
+
+# Fields
+* `name::String`: Problem name
+* `nperiods::Int`: Number of time periods
+* `cols::Vector{String}`: Name of first column in each time period
+* `rows::Vector{String}`: Name of first row in each time period
+"""
 mutable struct TimeData
     name::String  # problem name
     
@@ -8,6 +18,14 @@ mutable struct TimeData
     rows::Vector{String}
 
     TimeData() = new("", 0, String[], String[])
+end
+
+function read_time_file(fname::String)
+    tdat = TimeData()
+    open(fname) do ftime
+        read!(ftime, tdat)
+    end
+    return tdat
 end
 
 import Base.read!
