@@ -1,50 +1,57 @@
+#  Copyright 2020, Mathieu Tanneau.
+#  This Source Code Form is subject to the terms of the Mozilla Public
+#  License, v. 2.0. If a copy of the MPL was not distributed with this
+#  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 """
-    TimeData
+    TimFile(filename::String)
 
-
-# Fields
-* `name::String`: Problem name
-* `nperiods::Int`: Number of time periods
-* `cols::Vector{String}`: Name of first column in each time period
-* `rows::Vector{String}`: Name of first row in each time period
+Type wrapper for reading `.tim` files using [`read_from_file`](@ref).
 """
-mutable struct TimeData
-    name::String  # problem name
-    
-    nperiods::Int  # Number of time periods
+struct TimFile <: AbstractFileType
+    filename::String
+end
 
-    # Name of first column and row in each time period
+"""
+    TimFileData
+
+## Fields
+
+- `name::String`: Problem name
+- `nperiods::Int`: Number of time periods
+- `cols::Vector{String}`: Name of first column in each time period
+- `rows::Vector{String}`: Name of first row in each time period
+"""
+mutable struct TimFileData
+    name::String
+    nperiods::Int
     cols::Vector{String}
     rows::Vector{String}
 
-    TimeData() = new("", 0, String[], String[])
+    TimFileData() = new("", 0, String[], String[])
 end
 
-function read_time_file(fname::String)
-    tdat = TimeData()
-    open(fname) do ftime
-        read!(ftime, tdat)
-    end
-    return tdat
+"""
+    read_from_file(file::TimFile)
+
+Read a `.tim` file and return a [`TimFileData`](@ref) object.
+"""
+function read_from_file(file::TimFile)
+    return open(io -> read(io, TimFileData), file.filename, "r")
 end
 
-import Base.read!
-
-function Base.read!(io::IO, dat::TimeData)
-
+function Base.read(io::IO, ::Type{TimFileData})
+    dat = TimFileData()
     section = ""
-
     while !eof(io)
         ln = readline(io)
-
-        # Skip empty lines
-        (length(ln) == 0 || ln[1] == "*") && continue
-        
+        if isempty(ln) || ln[1] == '*'
+            continue  # Skip empty lines
+        end
         # Check if section header
         if ln[1] != ' '
             fields = split(ln)
             section = String.(fields[1])
-
             if section == "TIME"
                 dat.name = (length(fields) == 1) ? "" : fields[2]
             elseif section == "PERIODS"
@@ -53,19 +60,18 @@ function Base.read!(io::IO, dat::TimeData)
                     # assume problem is LP
                 else
                     pbtype = fields[2]
-                    pbtype == "LP" || error("Unsupported format: $pbtype")
+                    if pbtype != "LP"
+                        error("Unsupported format: $pbtype")
+                    end
                 end
             end
-
             continue
         end
-
         # Parse line
         fields = split(ln)
         push!(dat.cols, fields[1])
         push!(dat.rows, fields[2])
         dat.nperiods += 1
     end
-
     return dat
 end

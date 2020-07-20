@@ -1,14 +1,24 @@
-using QPSReader
-using Logging
+#  Copyright 2020, Mathieu Tanneau.
+#  This Source Code Form is subject to the terms of the Mozilla Public
+#  License, v. 2.0. If a copy of the MPL was not distributed with this
+#  file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 """
-    read_core(filename::String)
+    CorFile(filename::String)
 
-Read a .cor file.
+Type wrapper for reading `.cor` files using [`read_from_file`](@ref).
 """
-function read_core_file(filename::String)
-    cdat = with_logger(Logging.NullLogger()) do
-        readqps(filename, mpsformat=:free)
+struct CorFile <: AbstractFileType
+    filename::String
+end
+
+"""
+    read_from_file(file::CorFile)
+
+Read a `.cor` file.
+"""
+function read_from_file(file::CorFile)
+    return Logging.with_logger(Logging.NullLogger()) do
+        QPSReader.readqps(file.filename, mpsformat = :free)
     end
-    return cdat
 end
