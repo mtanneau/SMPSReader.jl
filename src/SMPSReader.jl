@@ -36,7 +36,7 @@ argument.
 
     # Read AIRL.cor, AIRL.tim, AIRL.sto
     smps = read_from_file("AIRL")
-    # Read AIRL.cor, AIRL.tim, AIRL.sto.second
+    # Read AIRL.cor, AIRL.tim, AIRL.sto
     smps = read_from_file("AIRL"; sto_filename = "AIRL.sto.second")
 
 """
