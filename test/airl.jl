@@ -17,6 +17,10 @@ const AIRL = joinpath(@__DIR__, "dat", "AIRL")
     @test tssp.m2 == 6
     @test tssp.n1 == 6
     @test tssp.n2 == 12
+    SMPSReader.write_to_file(
+        tssp,
+        SMPSReader.StochOptFormat("airl.first.sof.json")
+    )
 end
 
 @testset ".second" begin
@@ -28,6 +32,10 @@ end
     @test tssp.m2 == 6
     @test tssp.n1 == 6
     @test tssp.n2 == 12
+    SMPSReader.write_to_file(
+        tssp,
+        SMPSReader.StochOptFormat("airl.second.sof.json")
+    )
 end
 
 @testset ".randgen" begin
@@ -39,4 +47,8 @@ end
     @test tssp.m2 == 6
     @test tssp.n1 == 6
     @test tssp.n2 == 12
+    SMPSReader.write_to_file(
+        tssp,
+        SMPSReader.StochOptFormat("airl.randgen.sof.json")
+    )
 end

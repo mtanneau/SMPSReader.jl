@@ -5,12 +5,17 @@
 
 module SMPSReader
 
+import JSON
 import LinearAlgebra
 import Logging
+import MathOptInterface
 import QPSReader
 import SparseArrays
 
+const MOI = MathOptInterface
+
 include("smps_parser.jl")
 include("TSSP.jl")
+include("StochOptFormat.jl")
 
 end
