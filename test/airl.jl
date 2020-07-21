@@ -10,18 +10,33 @@ const AIRL = joinpath(@__DIR__, "dat", "AIRL")
 
 @testset ".first" begin
     airl = SMPSReader.read_from_file(
-        AIRL; sto_filename = AIRL * ".sto.first"
+      AIRL; sto_filename = AIRL * ".sto.first"
     )
+    tssp = SMPSReader.TwoStageStochasticProgram(airl)
+    @test tssp.m1 == 2
+    @test tssp.m2 == 6
+    @test tssp.n1 == 6
+    @test tssp.n2 == 12
 end
 
 @testset ".second" begin
     airl = SMPSReader.read_from_file(
         AIRL; sto_filename = AIRL * ".sto.second"
     )
+    tssp = SMPSReader.TwoStageStochasticProgram(airl)
+    @test tssp.m1 == 2
+    @test tssp.m2 == 6
+    @test tssp.n1 == 6
+    @test tssp.n2 == 12
 end
 
 @testset ".randgen" begin
     airl = SMPSReader.read_from_file(
         AIRL; sto_filename = AIRL * ".sto.randgen"
     )
+    tssp = SMPSReader.TwoStageStochasticProgram(airl)
+    @test tssp.m1 == 2
+    @test tssp.m2 == 6
+    @test tssp.n1 == 6
+    @test tssp.n2 == 12
 end
