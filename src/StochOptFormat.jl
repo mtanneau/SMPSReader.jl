@@ -29,6 +29,10 @@ function write_to_file(
     compression = MOI.FileFormats.AutomaticCompression()
 )
     data = Dict(
+        "version" => Dict(
+            "major" => 0,
+            "minor" => 1,
+        ),
         "root" => Dict(
             "name" => "0",
             "state_variables" => Dict(
@@ -67,7 +71,7 @@ function _first_stage_problem(tssp::TwoStageStochasticProgram)
     MOI.set(
         model,
         MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
-        MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(tssp.c, x), 0.0)
+        MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(tssp.c, x′), 0.0)
     )
     # Constraints.
     terms = [MOI.ScalarAffineTerm{Float64}[] for _ = 1:tssp.m1]
@@ -207,16 +211,16 @@ function _second_stage_problem(tssp::TwoStageStochasticProgram)
     for ((i, j), v) in ΔW_variables
         push!(quad_terms[i], MOI.ScalarQuadraticTerm(1.0, v, y[j]))
     end
-    for (aff, quad, bi) in zip(aff_terms, quad_terms, tssp.b)
+    for (aff, quad, hi) in zip(aff_terms, quad_terms, tssp.h)
         if length(quad) == 0
             MOI.add_constraint(
-                model, MOI.ScalarAffineFunction(aff, 0.0), MOI.EqualTo(bi)
+                model, MOI.ScalarAffineFunction(aff, 0.0), MOI.EqualTo(hi)
             )
         else
             MOI.add_constraint(
                 model,
                 MOI.ScalarQuadraticFunction(aff, quad, 0.0),
-                MOI.EqualTo(bi),
+                MOI.EqualTo(hi),
             )
         end
     end
