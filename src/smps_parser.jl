@@ -3,6 +3,36 @@
 #  License, v. 2.0. If a copy of the MPL was not distributed with this
 #  file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+abstract type AbstractFileType end
+
+###
+### .cor files
+###
+
+"""
+    CorFile(filename::String)
+
+Type wrapper for reading `.cor` files using [`read_from_file`](@ref).
+"""
+struct CorFile <: AbstractFileType
+    filename::String
+end
+
+"""
+    read_from_file(file::CorFile)
+
+Read a `.cor` file.
+"""
+function read_from_file(file::CorFile)
+    return Logging.with_logger(Logging.NullLogger()) do
+        QPSReader.readqps(file.filename, mpsformat = :free)
+    end
+end
+
+###
+### .sto files
+###
+
 """
     StoFile(filename::String)
 
@@ -187,4 +217,141 @@ function Base.read(io::IO, ::Type{StoFileData})
         error("File ended before reaching ENDATA")
     end
     return dat
+end
+
+###
+### .tim files
+###
+
+"""
+    TimFile(filename::String)
+
+Type wrapper for reading `.tim` files using [`read_from_file`](@ref).
+"""
+struct TimFile <: AbstractFileType
+    filename::String
+end
+
+"""
+    TimFileData
+
+## Fields
+
+- `name::String`: Problem name
+- `nperiods::Int`: Number of time periods
+- `cols::Vector{String}`: Name of first column in each time period
+- `rows::Vector{String}`: Name of first row in each time period
+"""
+mutable struct TimFileData
+    name::String
+    nperiods::Int
+    cols::Vector{String}
+    rows::Vector{String}
+
+    TimFileData() = new("", 0, String[], String[])
+end
+
+"""
+    read_from_file(file::TimFile)
+
+Read a `.tim` file and return a [`TimFileData`](@ref) object.
+"""
+function read_from_file(file::TimFile)
+    return open(io -> read(io, TimFileData), file.filename, "r")
+end
+
+function Base.read(io::IO, ::Type{TimFileData})
+    dat = TimFileData()
+    section = ""
+    while !eof(io)
+        ln = readline(io)
+        if isempty(ln) || ln[1] == '*'
+            continue  # Skip empty lines
+        end
+        # Check if section header
+        if ln[1] != ' '
+            fields = split(ln)
+            section = String.(fields[1])
+            if section == "TIME"
+                dat.name = (length(fields) == 1) ? "" : fields[2]
+            elseif section == "PERIODS"
+                # check problem type
+                if length(fields) == 1
+                    # assume problem is LP
+                else
+                    pbtype = fields[2]
+                    if pbtype != "LP"
+                        error("Unsupported format: $pbtype")
+                    end
+                end
+            end
+            continue
+        end
+        # Parse line
+        fields = split(ln)
+        push!(dat.cols, fields[1])
+        push!(dat.rows, fields[2])
+        dat.nperiods += 1
+    end
+    return dat
+end
+
+###
+### All together now...
+###
+
+struct SMPSFile
+    cor::QPSReader.QPSData
+    sto::StoFileData
+    tim::TimFileData
+end
+
+"""
+    read_from_file(
+        filename::String = "";
+        cor_filename::String = "",
+        sto_filename::String = "",
+        tim_filename::String = "",
+    )::SMPSFile
+
+Read a collection of SMPS files and turn a named tuple with fields `.cor`,
+`.tim`, and `.sto`.
+
+If only `filename` is passed, assumes the `.cor`, `.tim`, and `.sto` files are
+in the same directory and can be found by concatenating `filename` with the
+corresponding extension.
+
+Files not meeting this convention can be specified via the corresponding keyword
+argument.
+
+## Example
+
+    # Read AIRL.cor, AIRL.tim, AIRL.sto
+    smps = read_from_file("AIRL")
+    # Read AIRL.cor, AIRL.tim, AIRL.sto
+    smps = read_from_file("AIRL"; sto_filename = "AIRL.sto.second")
+
+"""
+function read_from_file(
+    filename::String = "";
+    cor_filename::String = "",
+    sto_filename::String = "",
+    tim_filename::String = "",
+)
+    cor = read_from_file(CorFile(_join_filename(filename, cor_filename, "cor")))
+    sto = read_from_file(StoFile(_join_filename(filename, sto_filename, "sto")))
+    tim = read_from_file(TimFile(_join_filename(filename, tim_filename, "tim")))
+    return SMPSFile(cor, sto, tim)
+end
+
+function _join_filename(base::String, specific::String, extension::String)
+    if !isempty(specific)
+        return specific
+    elseif !isempty(base)
+        return base * "." * extension
+    end
+    error(
+        "Cannot have base filename and specific filename for $(extension) " *
+        "both be empty."
+    )
 end

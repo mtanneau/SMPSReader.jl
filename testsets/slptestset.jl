@@ -19,9 +19,11 @@ slptestset = Dict{String, Any}()
 # slptestset/airlift
 
 for model in ["first", "second"]
-    slptestset["airlift_$(model)"] = SMPSReader.read_from_file(
-        "$(SLPTESTSET)/airlift/AIRL";
-        sto_filename = "$(SLPTESTSET)/airlift/AIRL.sto.$(model)",
+    slptestset["airlift_$(model)"] = SMPSReader.TwoStageStochasticProgram(
+        SMPSReader.read_from_file(
+            "$(SLPTESTSET)/airlift/AIRL";
+            sto_filename = "$(SLPTESTSET)/airlift/AIRL.sto.$(model)",
+        )
     )
 end
 
@@ -29,9 +31,11 @@ end
 # slptestset/assets
 
 for model in ["large", "small"]
-    slptestset["assets_$(model)"] = SMPSReader.read_from_file(
-        "$(SLPTESTSET)/assets/assets";
-        sto_filename = "$(SLPTESTSET)/assets/assets.sto.$(model)",
+    slptestset["assets_$(model)"] = SMPSReader.TwoStageStochasticProgram(
+        SMPSReader.read_from_file(
+            "$(SLPTESTSET)/assets/assets";
+            sto_filename = "$(SLPTESTSET)/assets/assets.sto.$(model)",
+        )
     )
 end
 
@@ -51,21 +55,27 @@ end
 # slptestset/cargo
 
 for n in [0, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
-    slptestset["cargo_$(2^n)"] = SMPSReader.read_from_file(
-        "$(SLPTESTSET)/cargo/4node";
-        sto_filename = "$(SLPTESTSET)/cargo/4node.sto.$(2^n)",
+    slptestset["cargo_$(2^n)"] = SMPSReader.TwoStageStochasticProgram(
+        SMPSReader.read_from_file(
+            "$(SLPTESTSET)/cargo/4node";
+            sto_filename = "$(SLPTESTSET)/cargo/4node.sto.$(2^n)",
+        )
     )
 end
 
 # ==============================================================================
 # slptestset/chem
 
-slptestset["chem"] = SMPSReader.read_from_file("$(SLPTESTSET)/chem/chem")
+slptestset["chem"] = SMPSReader.TwoStageStochasticProgram(
+    SMPSReader.read_from_file("$(SLPTESTSET)/chem/chem")
+)
 
 # ==============================================================================
 # slptestset/electric
 
-slptestset["electric"] = SMPSReader.read_from_file("$(SLPTESTSET)/electric/LandS")
+slptestset["electric"] = SMPSReader.TwoStageStochasticProgram(
+    SMPSReader.read_from_file("$(SLPTESTSET)/electric/LandS")
+)
 
 # ==============================================================================
 # slptestset/electric
@@ -81,21 +91,25 @@ for sto in ["_blocks.sto", ".sto.dep", ".sto.indep"]
 end
 
 # ==============================================================================
-# slptestset/electric
+# slptestset/environ
 
 for ext in [
     "1200", "1875", "3780", "5292", "aggr", "imp", "loose", "lrge", "xlrge"
 ]
-    slptestset["environ_$(ext)"] = SMPSReader.read_from_file(
-        "$(SLPTESTSET)/environ/env";
-        sto_filename = "$(SLPTESTSET)/environ/env.sto.$(ext)",
+    slptestset["environ_$(ext)"] = SMPSReader.TwoStageStochasticProgram(
+        SMPSReader.read_from_file(
+            "$(SLPTESTSET)/environ/env";
+            sto_filename = "$(SLPTESTSET)/environ/env.sto.$(ext)",
+        )
     )
 end
 
 # ==============================================================================
 # slptestset/phone
 
-slptestset["phone"] = SMPSReader.read_from_file("$(SLPTESTSET)/phone/phone")
+slptestset["phone"] = SMPSReader.TwoStageStochasticProgram(
+    SMPSReader.read_from_file("$(SLPTESTSET)/phone/phone")
+)
 
 # ==============================================================================
 # slptestset/stocfor
