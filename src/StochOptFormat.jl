@@ -4,12 +4,12 @@
 #  file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 """
-    StochOptFormat(filename::String)
+    StochOptFormatFile(filename::String)
 
 Type wrapper for writing StochOptFormat files (`.sof.json`) using
 [`write_to_file`](@ref).
 """
-struct StochOptFormat <: AbstractFileType
+struct StochOptFormatFile <: AbstractFileType
     filename::String
 end
 
@@ -25,7 +25,7 @@ Write the [`TwoStageStochasticProgram`](@ref) `problem` to a
 """
 function write_to_file(
     problem::TwoStageStochasticProgram,
-    file::StochOptFormat;
+    file::StochOptFormatFile;
     compression = MOI.FileFormats.AutomaticCompression()
 )
     data = Dict(
@@ -159,7 +159,7 @@ function _second_stage_problem(tssp::TwoStageStochasticProgram)
     for (ω, ΔW) in enumerate(tssp.ΔWs)
         for (i, j, v) in zip(SparseArrays.findnz(ΔW)...)
             ωx = _maybe_add_variable(
-                model, ΔW_variables, i, "ΔW", random_variables
+                model, ΔW_variables, (i, j), "ΔW", random_variables
             )
             support[ω][ωx] = v
         end
@@ -215,7 +215,7 @@ function _second_stage_problem(tssp::TwoStageStochasticProgram)
         else
             MOI.add_constraint(
                 model,
-                MOI.ScalarQuadraticFunction(quad, aff, 0.0),
+                MOI.ScalarQuadraticFunction(aff, quad, 0.0),
                 MOI.EqualTo(bi),
             )
         end
