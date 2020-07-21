@@ -19,12 +19,12 @@ function test_indep_discrete(dat_dir = joinpath(@__DIR__, "dat"))
     @test X1.row_name == "R000001"
     @test X1.col_name == "X0001"
     @test X1.support == [6.0, 8.0]
-    @test X1.p == [0.5, 0.5]
-    @test isa(X2, SMPSReader.ScalarDiscrete)
+    @test X1.probability == [0.5, 0.5]
+    @test X2 isa SMPSReader.ScalarDiscrete
     @test X2.row_name == "R000002"
     @test X2.col_name == "X0002"
     @test X2.support == [1.0, 2.0, 3.0]
-    @test X2.p == [0.1, 0.5, 0.4]
+    @test X2.probability == [0.1, 0.5, 0.4]
 end
 
 function test_blocks_discrete(dat_dir = joinpath(@__DIR__, "dat"))
@@ -37,7 +37,7 @@ function test_blocks_discrete(dat_dir = joinpath(@__DIR__, "dat"))
     b2 = sdat.blocks[2]
 
     @test length(b1.support) == 2
-    @test b1.p == [0.6, 0.4]
+    @test b1.probability == [0.6, 0.4]
     @test b1.support[1] == [
         ("C000001", "X0001", 1.1), ("C000002", "X0001", 1.2),
         ("C000001", "X0002", 2.1), ("C000002", "X0002", 2.2),
@@ -49,7 +49,7 @@ function test_blocks_discrete(dat_dir = joinpath(@__DIR__, "dat"))
     ]
 
     @test length(b2.support) == 3
-    @test b2.p == [0.25, 0.35, 0.4]
+    @test b2.probability == [0.25, 0.35, 0.4]
     @test b2.support[1] == [
         ("C000001", "RIGHT", 1.0), ("C000002", "RIGHT", 2.0),
         ("C000003", "RIGHT", 3.0), ("C000004", "RIGHT", 4.0)
@@ -62,15 +62,23 @@ function test_blocks_discrete(dat_dir = joinpath(@__DIR__, "dat"))
         ("C000001", "RIGHT", 1.2), ("C000002", "RIGHT", 2.2),
         ("C000003", "RIGHT", 3.2)
     ]
-
 end
 
-@testset ".sto reader" begin
-    @testset "INDEP - DISCRETE" begin
-        test_indep_discrete()
-    end
+function test_time_parser(dat_dir = joinpath(@__DIR__, "dat"))
+    tdat = SMPSReader.read_from_file(SMPSReader.TimFile(dat_dir * "/test1.tim"))
+    @test tdat.name == "TEST1"
+    @test tdat.cols == ["COL1", "COL6", "COL8"]
+    @test tdat.rows == ["ROW01", "ROW03", "ROW19"]
+end
 
-    @testset "BLOCKS - DISCRETE" begin
-        test_blocks_discrete()
-    end
+@testset ".tim reader" begin
+    test_time_parser()
+end
+
+@testset "INDEP - DISCRETE" begin
+    test_indep_discrete()
+end
+
+@testset "BLOCKS - DISCRETE" begin
+    test_blocks_discrete()
 end

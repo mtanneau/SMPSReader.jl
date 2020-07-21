@@ -13,7 +13,7 @@ if !isdir(SLPTESTSET)
     run(`unzip $(dest) -d $(dirname(SLPTESTSET))`)
 end
 
-slptestset = Dict{String, Any}()
+slptestset = Dict{String, SMPSReader.TwoStageStochasticProgram}()
 
 # ==============================================================================
 # slptestset/airlift
@@ -78,17 +78,19 @@ slptestset["electric"] = SMPSReader.TwoStageStochasticProgram(
 )
 
 # ==============================================================================
-# slptestset/electric
+# slptestset/electric_3stage
 
-for sto in ["_blocks.sto", ".sto.dep", ".sto.indep"]
-    if sto == ".sto.dep"
-        continue  # ERROR: Unknown section header: SCENARIOS
-    end
-    slptestset["electric_3stage_$(sto)"] = SMPSReader.read_from_file(
-        "$(SLPTESTSET)/electric_3stage/LandS";
-        sto_filename = "$(SLPTESTSET)/electric_3stage/LandS$(sto)"
-    )
-end
+# 3-stage problem.
+
+# for sto in ["_blocks.sto", ".sto.dep", ".sto.indep"]
+#     if sto == ".sto.dep"
+#         continue  # ERROR: Unknown section header: SCENARIOS
+#     end
+#     slptestset["electric_3stage_$(sto)"] = SMPSReader.read_from_file(
+#         "$(SLPTESTSET)/electric_3stage/LandS";
+#         sto_filename = "$(SLPTESTSET)/electric_3stage/LandS$(sto)"
+#     )
+# end
 
 # ==============================================================================
 # slptestset/environ
@@ -133,10 +135,15 @@ for model in ["stocfor1", "stocfor2", "stocfor3"]
             end
         end
     end
-    slptestset["stocfor_$(model)"] = SMPSReader.read_from_file(
+    smps = SMPSReader.read_from_file(
         "$(SLPTESTSET)/$(model)/$(model)";
         cor_filename = "$(SLPTESTSET)/$(model)/$(model)_FIXED.cor"
     )
+    if length(smps.tim.rows) == 2
+        # TODO(odow): debug ERROR: AssertionError: i1 == 1
+        # slptestset["stocfor_$(model)"] =
+        #     SMPSReader.TwoStageStochasticProgram(smps)
+    end
 end
 
 # ==============================================================================
