@@ -17,16 +17,22 @@ end
     write_to_file(
         problem::TwoStageStochasticProgram,
         file::StochOptFormat;
-        compression = MOI.FileFormats.AutomaticCompression()
+        compression = MOI.FileFormats.AutomaticCompression(),
+        kwargs...
     )
 
 Write the [`TwoStageStochasticProgram`](@ref) `problem` to a
 [`StochOptFormat`](@ref) file.
+
+Any additional `kwargs` will be stored in the top-level of the resulting
+StochOptFormat file. Valid arguments include `name`, `author`, `date`, and
+`description`.
 """
 function write_to_file(
     problem::TwoStageStochasticProgram,
     file::StochOptFormatFile;
-    compression = MOI.FileFormats.AutomaticCompression()
+    compression = MOI.FileFormats.AutomaticCompression(),
+    kwargs...
 )
     data = Dict(
         "version" => Dict(
@@ -47,8 +53,20 @@ function write_to_file(
             Dict("from" => "0", "to" => "1", "probability" => 1.0),
             Dict("from" => "1", "to" => "2", "probability" => 1.0),
         ],
-        "test_scenarios" => []
     )
+    data["test_scenarios"] = [
+        Dict(
+            "probability" => realization["probability"],
+            "scenario" => [
+                Dict("node" => "1", "support" => Dict()),
+                Dict("node" => "2", "support" => realization["support"])
+            ]
+        )
+        for realization in data["nodes"]["2"]["realizations"]
+    ]
+    for (k, v) in kwargs
+        data["$(k)"] = v
+    end
     MOI.FileFormats.compressed_open(file.filename, "w", compression) do io
         write(io, JSON.json(data))
     end
