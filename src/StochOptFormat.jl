@@ -34,27 +34,20 @@ function write_to_file(
     compression = MOI.FileFormats.AutomaticCompression(),
     kwargs...
 )
-    data = Dict(
-        "version" => Dict(
-            "major" => 0,
-            "minor" => 1,
-        ),
+    node_1, sp_1 = _first_stage_problem(problem)
+    node_2, sp_2 = _second_stage_problem(problem)
+    data = Dict{String, Any}(
+        "version" => Dict("major" => 0, "minor" => 2),
         "root" => Dict(
-            "name" => "0",
             "state_variables" => Dict(
                 "$(i)" => Dict("initial_value" => 0.0) for i = 1:problem.n1
-            )
+            ),
+            "successors" => Dict("1" => 1.0),
         ),
-        "nodes" => Dict(
-            "1" => _first_stage_problem(problem),
-            "2" => _second_stage_problem(problem),
-        ),
-        "edges" => [
-            Dict("from" => "0", "to" => "1", "probability" => 1.0),
-            Dict("from" => "1", "to" => "2", "probability" => 1.0),
-        ],
+        "nodes" => Dict("1" => node_1, "2" => node_2),
+        "subproblems" => Dict("1" => sp_1, "2" => sp_2),
     )
-    data["test_scenarios"] = [
+    data["validation_scenarios"] = [
         Dict(
             "probability" => realization["probability"],
             "scenario" => [
@@ -101,7 +94,7 @@ function _first_stage_problem(tssp::TwoStageStochasticProgram)
             model, MOI.ScalarAffineFunction(aff, 0.0), MOI.EqualTo(bi)
         )
     end
-    return Dict(
+    subproblem = Dict(
         "state_variables" => Dict(
             "$(i)" => Dict(
                 "in" => MOI.get(model, MOI.VariableName(), x[i]),
@@ -111,8 +104,13 @@ function _first_stage_problem(tssp::TwoStageStochasticProgram)
         ),
         "random_variables" => [],
         "subproblem" => _subroblem_to_dict(model),
-        "realizations" => [],
     )
+    node = Dict(
+        "subproblem" => "1",
+        "realizations" => [],
+        "successors" => Dict("2" => 1.0),
+    )
+    return node, subproblem
 end
 
 function _second_stage_problem(tssp::TwoStageStochasticProgram)
@@ -242,7 +240,7 @@ function _second_stage_problem(tssp::TwoStageStochasticProgram)
             )
         end
     end
-    return Dict(
+    subproblem = Dict(
         "state_variables" => Dict(
             "$(i)" => Dict(
                 "in" => MOI.get(model, MOI.VariableName(), x[i]),
@@ -252,14 +250,19 @@ function _second_stage_problem(tssp::TwoStageStochasticProgram)
         ),
         "random_variables" => random_variables,
         "subproblem" => _subroblem_to_dict(model),
+    )
+    node = Dict(
+        "subproblem" => "2",
         "realizations" => [
             Dict(
                 "probability" => tssp.probability[i],
                 "support" => ω
             )
             for (i, ω) in enumerate(support)
-        ]
+        ],
+        "successors" => Dict(),
     )
+    return node, subproblem
 end
 
 function _subroblem_to_dict(src::MOI.FileFormats.MOF.Model)

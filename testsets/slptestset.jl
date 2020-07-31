@@ -152,7 +152,6 @@ slptestset
 
 for (k, v) in slptestset
     SMPSReader.write_to_file(
-        v,
-        SMPSReader.StochOptFormatFile(joinpath(@__DIR__, k * ".sof.json"))
+        v, SMPSReader.StochOptFormatFile(joinpath(@__DIR__, k * ".sof.json")),
     )
 end
